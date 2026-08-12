@@ -2,5 +2,9 @@ name: astrbot_plugin_gh_cli
 display_name: GitHub CLI
 desc: 在 AstrBot 中使用 GitHub CLI 风格指令与 AI 函数调用（repo/issue/pr/release/gist/search/run/api），支持功能开关与加密凭据存储。
 version: v1.0.0
-author: astrbot-gh-cli
+author: Helio-RC
 repo: https://github.com/Helio-RC/astrbot_plugin_gh_cli
+tags:
+  - GitHub
+  - CLI
+  - 工具
