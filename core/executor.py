@@ -25,11 +25,20 @@ LONG_TEXT_ACTIONS = {
 
 class Executor:
     def __init__(
-        self, config: dict, vault: Vault, audit: AuditLog | None = None
+        self,
+        config_getter,
+        vault: Vault,
+        audit: AuditLog | None = None,
     ) -> None:
-        self.config = config
+        """`config_getter` is a zero-arg callable returning the live plugin
+        config, so dashboard config changes take effect without a reload."""
+        self._config_getter = config_getter
         self.vault = vault
         self.audit = audit
+
+    @property
+    def config(self) -> dict:
+        return self._config_getter()
 
     def _group_enabled(self, group: str) -> bool:
         return bool(self.config.get(f"enable_{group}", True))
@@ -77,6 +86,14 @@ class Executor:
         params = dict(params)
         params.setdefault(
             "default_repo", normalize_default_repo(self.config.get("default_repo", ""))
+        )
+        logger.info(
+            "gh 调用: group=%s action=%s source=%s repo=%r default_repo=%r",
+            group,
+            action,
+            source,
+            params.get("repo"),
+            params.get("default_repo"),
         )
         if (
             action in LONG_TEXT_ACTIONS.get(group, set())

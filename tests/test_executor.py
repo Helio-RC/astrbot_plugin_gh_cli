@@ -17,7 +17,15 @@ CONFIG = {
 def _exec(tmp_path, config=None):
     cfg = dict(CONFIG)
     cfg.update(config or {})
-    return Executor(cfg, Vault(tmp_path / "data"))
+    return Executor(lambda: cfg, Vault(tmp_path / "data"))
+
+
+def test_executor_reads_live_config(tmp_path):
+    cfg = dict(CONFIG)
+    e = Executor(lambda: cfg, Vault(tmp_path / "data"))
+    assert e.config["default_repo"] == "octocat/Hello-World"
+    cfg["default_repo"] = "live/updated"
+    assert e.config["default_repo"] == "live/updated"
 
 
 def test_read_requires_group_enabled(tmp_path):

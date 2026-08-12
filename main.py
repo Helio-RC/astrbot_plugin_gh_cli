@@ -36,7 +36,7 @@ class GhCliPlugin(Star):
             if hasattr(self.config, "save_config"):
                 self.config.save_config()
         self.audit = AuditLog(data_dir, limit=int(self.config.get("audit_limit", 1000)))
-        self.executor = Executor(self.config, self.vault, audit=self.audit)
+        self.executor = Executor(lambda: self.config, self.vault, audit=self.audit)
         self.context.add_llm_tools(*gh_tools.build_tools(self.executor))
         self._register_web_apis()
 
@@ -83,7 +83,10 @@ class GhCliPlugin(Star):
     async def page_audit_clear(self):
         if self.audit is None:
             return error_response("审计日志未初始化", status_code=500)
-        if not request.username:
+        # 插件页请求可能不带 username 字段；以会话 Cookie 作为同源登录凭据兜底
+        username = getattr(request, "username", None)
+        headers = getattr(request, "headers", {}) or {}
+        if not username and not headers.get("cookie", ""):
             return error_response("需要登录 Dashboard", status_code=403)
         self.audit.clear()
         return json_response({"cleared": True})
