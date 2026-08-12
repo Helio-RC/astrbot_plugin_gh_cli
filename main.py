@@ -120,7 +120,7 @@ class GhCliPlugin(Star):
     async def gh(self, event: AstrMessageEvent):
         """GitHub CLI: /gh <指令组> <操作> [参数]"""
         text = event.message_str.strip()
-        if text.startswith("/gh"):
+        if text.startswith(("/gh", "gh ")) or text == "gh":
             text = text[3:].strip()
         try:
             if not text or text == "help":
