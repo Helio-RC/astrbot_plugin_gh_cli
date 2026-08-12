@@ -115,9 +115,22 @@ btnExport.addEventListener("click", async () => {
 });
 
 btnClear.addEventListener("click", async () => {
-  if (!confirm("确定清空全部审计日志？此操作不可恢复。")) return;
+  if (btnClear.dataset.arm !== "1") {
+    btnClear.dataset.arm = "1";
+    btnClear.textContent = "再次点击确认清空";
+    setTimeout(() => {
+      delete btnClear.dataset.arm;
+      btnClear.textContent = "清空日志";
+    }, 3000);
+    return;
+  }
+  delete btnClear.dataset.arm;
+  btnClear.textContent = "清空日志";
   try {
-    await bridge.apiPost("audit/clear");
+    const resp = await bridge.apiPost("audit/clear");
+    if (!resp || resp.cleared === false) {
+      throw new Error("服务端返回失败");
+    }
     loadEntries();
     loadStats();
   } catch (err) {

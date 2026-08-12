@@ -88,8 +88,8 @@ class GhCliPlugin(Star):
         headers = getattr(request, "headers", {}) or {}
         if not username and not headers.get("cookie", ""):
             return error_response("需要登录 Dashboard", status_code=403)
-        self.audit.clear()
-        return json_response({"cleared": True})
+        cleared = self.audit.clear()
+        return json_response({"cleared": cleared})
 
     async def page_audit_export(self):
         if self.audit is None:

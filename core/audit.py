@@ -91,11 +91,13 @@ class AuditLog:
         entries.reverse()
         return entries[:limit]
 
-    def clear(self) -> None:
+    def clear(self) -> bool:
         try:
             self._path.unlink(missing_ok=True)
+            return True
         except OSError as exc:
             logger.warning("审计日志清空失败: %s", exc)
+            return False
 
     def stats(self) -> dict:
         entries = self.list_entries(limit=1000)
