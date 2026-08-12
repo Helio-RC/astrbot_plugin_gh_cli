@@ -1,0 +1,51 @@
+{
+  "shared_token": {
+    "description": "共享 GitHub Token（保存后会自动加密，配置文件中不留明文）",
+    "type": "string",
+    "obvious_hint": true
+  },
+  "personal_tokens": {
+    "description": "个人 Token（名称 + Token，用户在聊天中 /gh auth use <名称> 激活）",
+    "type": "template_list",
+    "templates": {
+      "token_entry": {
+        "name": "个人 Token",
+        "display_item": "name",
+        "items": {
+          "name": { "description": "名称（用于 /gh auth use）", "type": "string", "default": "" },
+          "token": { "description": "GitHub Token", "type": "string", "default": "" }
+        }
+      }
+    }
+  },
+  "default_repo": {
+    "description": "默认仓库 owner/repo（未带 -R 参数时使用）",
+    "type": "string",
+    "default": ""
+  },
+  "text_prefix": {
+    "description": "长文本自动前缀（issue/PR 正文、评论、release 说明）。支持占位符: {datetime} {date} {time} {sender}。留空则不加前缀",
+    "type": "text",
+    "default": ""
+  },
+  "enable_repo": { "description": "启用 repo 指令组", "type": "bool", "default": true },
+  "repo_write": { "description": "允许 repo 写操作（create/edit/star，需管理员）", "type": "bool", "default": false },
+  "enable_issue": { "description": "启用 issue 指令组", "type": "bool", "default": true },
+  "issue_write": { "description": "允许 issue 写操作（create/close/comment，需管理员）", "type": "bool", "default": false },
+  "enable_pr": { "description": "启用 pr 指令组", "type": "bool", "default": true },
+  "pr_write": { "description": "允许 pr 写操作（create/merge/review，需管理员）", "type": "bool", "default": false },
+  "enable_release": { "description": "启用 release 指令组", "type": "bool", "default": true },
+  "release_write": { "description": "允许 release 写操作（create/delete，需管理员）", "type": "bool", "default": false },
+  "enable_gist": { "description": "启用 gist 指令组", "type": "bool", "default": true },
+  "gist_write": { "description": "允许 gist 写操作（create/delete，需管理员）", "type": "bool", "default": false },
+  "enable_search": { "description": "启用 search 指令组", "type": "bool", "default": true },
+  "search_write": { "description": "search 组无写操作（保留字段）", "type": "bool", "default": false, "invisible": true },
+  "enable_run": { "description": "启用 run（Actions）指令组", "type": "bool", "default": true },
+  "run_write": { "description": "允许 run 写操作（触发工作流，需管理员）", "type": "bool", "default": false },
+  "enable_api": { "description": "启用 api 指令组", "type": "bool", "default": true },
+  "api_write": { "description": "允许 api 写请求（POST/PATCH/PUT/DELETE，需管理员）", "type": "bool", "default": false },
+  "list_limit": { "description": "列表默认返回条数（1-30）", "type": "int", "default": 10 },
+  "content_limit": { "description": "正文截断字符数", "type": "int", "default": 1500 },
+  "audit_enabled": { "description": "启用操作审计日志（记录发起人/操作/结果，可在 WebUI 查看）", "type": "bool", "default": true },
+  "audit_limit": { "description": "审计日志保留条数上限（超出自动清理最旧，最大 10000）", "type": "int", "default": 1000 }
+}

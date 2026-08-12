@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>审计日志</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <h1>GitHub CLI 审计日志</h1>
+      <div class="stats">
+        <span id="stat-total">总数: -</span>
+        <span id="stat-ok">成功: -</span>
+        <span id="stat-fail">失败: -</span>
+      </div>
+      <div class="actions">
+        <select id="filter-sender" aria-label="按发起人筛选"></select>
+        <select id="filter-group" aria-label="按指令组筛选"></select>
+        <select id="filter-ok" aria-label="按结果筛选">
+          <option value="">全部结果</option>
+          <option value="true">成功</option>
+          <option value="false">失败</option>
+        </select>
+        <button id="btn-refresh">刷新</button>
+        <button id="btn-export">导出 JSON</button>
+        <button id="btn-clear" class="danger">清空日志</button>
+      </div>
+    </header>
+    <main>
+      <table>
+        <thead>
+          <tr>
+            <th>时间</th>
+            <th>发起人</th>
+            <th>会话</th>
+            <th>来源</th>
+            <th>指令组</th>
+            <th>操作</th>
+            <th>仓库</th>
+            <th>参数</th>
+            <th>正文预览</th>
+            <th>结果</th>
+            <th>错误</th>
+          </tr>
+        </thead>
+        <tbody id="rows">
+          <tr><td colspan="11" class="empty">加载中...</td></tr>
+        </tbody>
+      </table>
+      <p id="error" class="error" hidden></p>
+    </main>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
