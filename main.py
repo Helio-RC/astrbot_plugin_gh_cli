@@ -8,7 +8,7 @@ from astrbot.core.utils.astrbot_path import get_astrbot_data_path
 from . import tools as gh_tools
 from .core.audit import AuditLog
 from .core.command import build_help, parse_command
-from .core.config_ingest import ingest_tokens
+from .core.config_ingest import ingest_tokens, normalize_default_repo
 from .core.executor import Executor
 from .core.vault import Vault
 
@@ -28,6 +28,9 @@ class GhCliPlugin(Star):
         data_dir = Path(get_astrbot_data_path()) / "plugin_data" / self.name
         self.vault = Vault(data_dir)
         changes = ingest_tokens(self.config, self.vault)
+        repo = normalize_default_repo(self.config.get("default_repo", ""))
+        if repo != self.config.get("default_repo", ""):
+            changes["default_repo"] = repo
         if changes:
             self.config.update(changes)
             if hasattr(self.config, "save_config"):
@@ -134,7 +137,6 @@ class GhCliPlugin(Star):
                 f"用法: /gh {group} <操作>。输入 /gh help 查看帮助。"
             )
             return
-        params.setdefault("default_repo", self.config.get("default_repo", ""))
         user_key = f"{event.get_platform_id()}:{event.get_sender_id()}"
         result = await self.executor.run(
             group,

@@ -1,8 +1,27 @@
 """Ingest plaintext tokens from plugin config into the encrypted vault."""
 
+import re
 from copy import deepcopy
 
 from .vault import Vault
+
+_GITHUB_URL_RE = re.compile(r"^(?:https?://)?(?:www\.)?github\.com/([^/?#]+)/([^/?#]+)")
+
+
+def normalize_default_repo(value: str) -> str:
+    """Normalize default_repo to `owner/repo`.
+
+    Accepts a full GitHub URL (https://github.com/owner/repo[.git][/...])
+    or an already-normalized `owner/repo`; strips scheme, host, trailing
+    slash and `.git` suffix.
+    """
+    repo = (value or "").strip()
+    if not repo:
+        return ""
+    match = _GITHUB_URL_RE.match(repo)
+    if match:
+        repo = f"{match.group(1)}/{match.group(2).removesuffix('.git')}"
+    return repo.rstrip("/")
 
 
 def ingest_tokens(config: dict, vault: Vault) -> dict:

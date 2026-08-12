@@ -286,6 +286,46 @@ def test_audit_recorded_on_success(tmp_path, monkeypatch):
     assert "error" not in entry
 
 
+def test_run_injects_default_repo_for_tool_source(tmp_path, monkeypatch):
+    from core import client as client_mod
+    from core.audit import AuditLog
+
+    captured = {}
+
+    class FakeIssue:
+        number = 1
+        html_url = "u"
+
+    def fake_get_repo(self, name):
+        captured["name"] = name
+        return type("R", (), {"create_issue": lambda s, **kw: FakeIssue()})()
+
+    monkeypatch.setattr(
+        client_mod.GhClient,
+        "get_github",
+        lambda self: type("G", (), {"get_repo": fake_get_repo})(),
+    )
+    audit = AuditLog(tmp_path / "audit")
+    e = _exec(tmp_path, {"issue_write": True, "bot_write": True, "audit_enabled": True})
+    e.audit = audit
+    result = __import__("asyncio").run(
+        e.run(
+            "issue",
+            "create",
+            {"title": "t"},
+            is_admin=False,
+            sender="Alice",
+            source="tool",
+            umo="tg:1",
+        )
+    )
+    assert result["ok"] is True
+    assert captured["name"] == "octocat/Hello-World"
+    entries = audit.list_entries()
+    assert entries[0]["repo"] == "octocat/Hello-World"
+    assert entries[0]["source"] == "tool"
+
+
 def test_audit_recorded_on_failure(tmp_path, monkeypatch):
     from core import client as client_mod
     from core.audit import AuditLog

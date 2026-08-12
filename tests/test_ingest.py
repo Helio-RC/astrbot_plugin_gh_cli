@@ -1,5 +1,31 @@
-from core.config_ingest import ingest_tokens
+from core.config_ingest import ingest_tokens, normalize_default_repo
 from core.vault import Vault
+
+
+def test_normalize_repo_url():
+    assert (
+        normalize_default_repo("https://github.com/Helio-RC/astrbot_plugin_gh_cli")
+        == "Helio-RC/astrbot_plugin_gh_cli"
+    )
+
+
+def test_normalize_repo_url_with_git_and_path():
+    assert normalize_default_repo("https://github.com/o/r.git") == "o/r"
+    assert normalize_default_repo("https://github.com/o/r/tree/main") == "o/r"
+
+
+def test_normalize_repo_bare_and_trailing_slash():
+    assert (
+        normalize_default_repo("Helio-RC/astrbot_plugin_gh_cli")
+        == "Helio-RC/astrbot_plugin_gh_cli"
+    )
+    assert normalize_default_repo("o/r/") == "o/r"
+    assert normalize_default_repo("  ") == ""
+
+
+def test_normalize_repo_www_and_schemaless():
+    assert normalize_default_repo("www.github.com/o/r") == "o/r"
+    assert normalize_default_repo("github.com/o/r") == "o/r"
 
 
 def test_ingest_shared(tmp_path):

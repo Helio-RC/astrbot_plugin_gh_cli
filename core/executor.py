@@ -7,6 +7,7 @@ from github import GithubException, RateLimitExceededException
 
 from .audit import AuditLog
 from .client import AuthError, GhClient, GhError
+from .config_ingest import normalize_default_repo
 from .operations import registry
 from .text_prefix import apply_prefix
 from .vault import Vault
@@ -73,6 +74,10 @@ class Executor:
         )
         if err:
             return {"ok": False, "error": err}
+        params = dict(params)
+        params.setdefault(
+            "default_repo", normalize_default_repo(self.config.get("default_repo", ""))
+        )
         if (
             action in LONG_TEXT_ACTIONS.get(group, set())
             and params.get("body") is not None
