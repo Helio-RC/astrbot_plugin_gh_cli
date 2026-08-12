@@ -43,6 +43,64 @@ def test_write_allowed(tmp_path):
     assert e.check_permission("repo", "create", is_admin=True) is None
 
 
+@pytest.mark.asyncio
+async def test_bot_write_allows_llm_write(tmp_path, monkeypatch):
+    from core import client as client_mod
+
+    class FakeIssue:
+        number = 1
+        html_url = "u"
+
+    class FakeRepo:
+        def create_issue(self, **kw):
+            return FakeIssue()
+
+    monkeypatch.setattr(
+        client_mod.GhClient,
+        "get_github",
+        lambda self: type("G", (), {"get_repo": lambda s, n: FakeRepo()})(),
+    )
+    e = _exec(tmp_path, {"issue_write": True, "bot_write": True})
+    result = await e.run(
+        "issue",
+        "create",
+        {"repo": "o/r", "title": "t"},
+        is_admin=False,
+        sender="Alice",
+        source="tool",
+    )
+    assert result["ok"] is True
+
+
+@pytest.mark.asyncio
+async def test_bot_write_off_blocks_llm_write(tmp_path):
+    e = _exec(tmp_path, {"issue_write": True})
+    result = await e.run(
+        "issue",
+        "create",
+        {"repo": "o/r", "title": "t"},
+        is_admin=False,
+        sender="Alice",
+        source="tool",
+    )
+    assert result["ok"] is False
+    assert "管理员" in result["error"]
+
+
+@pytest.mark.asyncio
+async def test_bot_write_does_not_affect_command_source(tmp_path):
+    e = _exec(tmp_path, {"issue_write": True, "bot_write": True})
+    result = await e.run(
+        "issue",
+        "create",
+        {"repo": "o/r", "title": "t"},
+        is_admin=False,
+        sender="Alice",
+    )
+    assert result["ok"] is False
+    assert "管理员" in result["error"]
+
+
 def test_read_allowed_without_admin(tmp_path):
     e = _exec(tmp_path)
     assert e.check_permission("repo", "view", is_admin=False) is None

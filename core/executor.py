@@ -64,7 +64,13 @@ class Executor:
         source: str = "command",
         umo: str = "",
     ) -> dict:
-        err = self.check_permission(group, action, is_admin)
+        err = self.check_permission(
+            group,
+            action,
+            # bot_write: LLM 工具调用时机器人自身视为管理员（仅影响写操作校验）
+            is_admin
+            or (source == "tool" and bool(self.config.get("bot_write", False))),
+        )
         if err:
             return {"ok": False, "error": err}
         if (

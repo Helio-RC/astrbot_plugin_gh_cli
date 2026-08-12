@@ -23,6 +23,11 @@
     "type": "string",
     "default": ""
   },
+    "bot_write": {
+    "description": "LLM 工具调用时机器人自身视为管理员（写操作仍需各 {group}_write 开关，审计照常记录发起人；/gh 指令仍要求用户管理员）",
+    "type": "bool",
+    "default": false
+  },
   "text_prefix": {
     "description": "长文本自动前缀（issue/PR 正文、评论、release 说明）。支持占位符: {datetime} {date} {time} {sender}。留空则不加前缀",
     "type": "text",

@@ -90,7 +90,7 @@ pip install -r requirements.txt
 
 ## AI 函数调用
 
-启用后，AstrBot 的 AI Agent 会自动获得 8 个 GitHub 工具（`gh_repo`、`gh_issue`、`gh_pr`、`gh_release`、`gh_gist`、`gh_search`、`gh_run`、`gh_api`）。每个工具的首参 `action` 为必填，写操作同样受对应开关与管理员权限约束。技能说明见 `skills/gh-cli/SKILL.md`。
+启用后，AstrBot 的 AI Agent 会自动获得 8 个 GitHub 工具（`gh_repo`、`gh_issue`、`gh_pr`、`gh_release`、`gh_gist`、`gh_search`、`gh_run`、`gh_api`）。每个工具的首参 `action` 为必填，写操作同样受对应开关约束（若开启 `bot_write`，AI 工具调用时机器人自身视为管理员，无需发起者管理员；`/gh` 指令仍要求用户管理员）。技能说明见 `skills/gh-cli/SKILL.md`。
 
 ## 开发与测试
 
