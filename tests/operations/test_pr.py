@@ -47,6 +47,26 @@ def test_merge():
 def test_write_metadata():
     assert "merge" in pr.WRITE
     assert "review" in pr.WRITE
+    assert "edit" in pr.WRITE
+    assert "delete" not in pr.WRITE
+
+
+def test_edit():
+    calls = {}
+
+    def fake_edit(**kwargs):
+        calls.update(kwargs)
+
+    p = _pr(1, "a", "open")
+    p.edit = fake_edit
+    repo = SimpleNamespace(get_pull=lambda n: p)
+    data = pr.HANDLERS["edit"](
+        _client(repo),
+        {"repo": "o/r", "number": 1, "title": "新标题", "labels": "bug, feat"},
+    )
+    assert data["ok"] is True
+    assert calls["title"] == "新标题"
+    assert calls["labels"] == ["bug", "feat"]
 
 
 def test_format_list():

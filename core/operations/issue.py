@@ -1,13 +1,14 @@
-"""issue group: list / view / create / close / reopen / comment."""
+"""issue group: list / view / create / edit / close / reopen / comment."""
 
 MODE = "sync"
-WRITE = {"create", "edit", "close", "reopen", "comment", "delete"}
+WRITE = {"create", "edit", "close", "reopen", "comment"}
 
 HELP = (
     "Issue 操作:\n"
     "/gh issue list [-R owner/repo] [--state open|closed|all]\n"
     "/gh issue view <number> [-R owner/repo]\n"
     "/gh issue create --title 标题 [--body 内容] [-R owner/repo] [--labels a,b]\n"
+    "/gh issue edit <number> [--labels a,b] [--title 标题] [--body 内容] [-R owner/repo]\n"
     "/gh issue close <number> [-R owner/repo]\n"
     "/gh issue comment <number> --body 内容 [-R owner/repo]"
 )
@@ -46,13 +47,35 @@ def view(client, params):
     return _item(repo.get_issue(int(params["number"])))
 
 
+def _labels(raw) -> list[str]:
+    return [l.strip() for l in raw.split(",") if l.strip()]
+
+
 def create(client, params):
     repo = _repo(client, params)
     title = params.get("title")
     if not title:
         raise ValueError("缺少标题: /gh issue create --title 标题")
-    labels = [l.strip() for l in params.get("labels", "").split(",") if l.strip()]
+    labels = _labels(params.get("labels") or "")
     i = repo.create_issue(title=title, body=params.get("body") or "", labels=labels)
+    return {"number": i.number, "html_url": i.html_url, "ok": True}
+
+
+def edit(client, params):
+    repo = _repo(client, params)
+    i = repo.get_issue(int(params["number"]))
+    kwargs = {}
+    if params.get("labels") is not None:
+        kwargs["labels"] = _labels(params["labels"])
+    if params.get("title"):
+        kwargs["title"] = params["title"]
+    if params.get("body") is not None:
+        kwargs["body"] = params["body"]
+    if params.get("state"):
+        kwargs["state"] = params["state"]
+    if not kwargs:
+        raise ValueError("缺少修改内容: /gh issue edit <n> [--labels a,b] [--title 标题] [--body 内容]")
+    i.edit(**kwargs)
     return {"number": i.number, "html_url": i.html_url, "ok": True}
 
 
@@ -104,6 +127,7 @@ HANDLERS = {
     "list": list_issues,
     "view": view,
     "create": create,
+    "edit": edit,
     "close": close,
     "reopen": reopen,
     "comment": comment,

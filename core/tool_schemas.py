@@ -57,7 +57,7 @@ def _build() -> dict:
     )
     schemas["gh_issue"] = _schema(
         "gh_issue",
-        "GitHub Issue 操作（列表/查看/创建/关闭/重开/评论）",
+        "GitHub Issue 操作（列表/查看/创建/编辑/关闭/重开/评论）",
         "issue",
         {
             "repo": STR("仓库名 owner/repo；缺省用 default_repo"),
@@ -70,7 +70,7 @@ def _build() -> dict:
     )
     schemas["gh_pr"] = _schema(
         "gh_pr",
-        "GitHub PR 操作（列表/查看/创建/合并/评论/评审）",
+        "GitHub PR 操作（列表/查看/创建/编辑/合并/评论/评审）",
         "pr",
         {
             "repo": STR("仓库名 owner/repo；缺省用 default_repo"),
@@ -86,7 +86,7 @@ def _build() -> dict:
     )
     schemas["gh_release"] = _schema(
         "gh_release",
-        "GitHub Release 操作（列表/查看/创建/删除）",
+        "GitHub Release 操作（列表/查看/创建/编辑/删除）",
         "release",
         {
             "repo": STR("仓库名 owner/repo；缺省用 default_repo"),
@@ -99,7 +99,7 @@ def _build() -> dict:
     )
     schemas["gh_gist"] = _schema(
         "gh_gist",
-        "GitHub Gist 操作（列表/查看/创建/删除）",
+        "GitHub Gist 操作（列表/查看/创建/编辑/评论/删除）",
         "gist",
         {
             "id": STR("gist id"),

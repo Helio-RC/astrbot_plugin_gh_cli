@@ -1,13 +1,14 @@
-"""pr group: list / view / create / close / reopen / merge / comment / review."""
+"""pr group: list / view / create / edit / close / reopen / merge / comment / review."""
 
 MODE = "sync"
-WRITE = {"create", "edit", "close", "reopen", "merge", "comment", "review", "delete"}
+WRITE = {"create", "edit", "close", "reopen", "merge", "comment", "review"}
 
 HELP = (
     "PR 操作:\n"
     "/gh pr list [-R owner/repo] [--state open|closed|merged|all]\n"
     "/gh pr view <number> [-R owner/repo]\n"
     "/gh pr create --title 标题 --head 分支 [--base main] [--body 内容] [-R owner/repo]\n"
+    "/gh pr edit <number> [--title 标题] [--body 内容] [--labels a,b] [-R owner/repo]\n"
     "/gh pr merge <number> [-R owner/repo] [--method merge|squash|rebase]\n"
     "/gh pr close <number> | /gh pr reopen <number>\n"
     "/gh pr comment <number> --body 内容\n"
@@ -66,6 +67,28 @@ def close(client, params):
     repo = _repo(client, params)
     p = repo.get_pull(int(params["number"]))
     p.edit(state="closed")
+    return {"number": p.number, "ok": True}
+
+
+def edit(client, params):
+    repo = _repo(client, params)
+    p = repo.get_pull(int(params["number"]))
+    kwargs = {}
+    if params.get("title"):
+        kwargs["title"] = params["title"]
+    if params.get("body") is not None:
+        kwargs["body"] = params["body"]
+    if params.get("labels") is not None:
+        kwargs["labels"] = [
+            l.strip() for l in params["labels"].split(",") if l.strip()
+        ]
+    if params.get("state"):
+        kwargs["state"] = params["state"]
+    if params.get("base"):
+        kwargs["base"] = params["base"]
+    if not kwargs:
+        raise ValueError("缺少修改内容: /gh pr edit <n> [--title 标题] [--body 内容] [--labels a,b]")
+    p.edit(**kwargs)
     return {"number": p.number, "ok": True}
 
 
@@ -135,6 +158,7 @@ HANDLERS = {
     "list": list_prs,
     "view": view,
     "create": create,
+    "edit": edit,
     "close": close,
     "reopen": reopen,
     "merge": merge,

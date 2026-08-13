@@ -43,6 +43,20 @@ def test_delete():
 
 def test_write_metadata():
     assert "delete" in release.WRITE
+    assert "edit" in release.WRITE
+
+
+def test_edit():
+    r = _rel("v1", "v1")
+    calls = {}
+    r.update_release = lambda **kw: calls.update(kw)
+    repo = SimpleNamespace(get_release=lambda tag: r)
+    data = release.HANDLERS["edit"](
+        _client(repo),
+        {"repo": "o/r", "tag": "v1", "name": "v2", "body": "新说明", "prerelease": True},
+    )
+    assert data["ok"] is True
+    assert calls == {"name": "v2", "message": "新说明", "prerelease": True}
 
 
 def test_format():

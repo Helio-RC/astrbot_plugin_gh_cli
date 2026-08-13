@@ -26,3 +26,8 @@ def test_each_schema_has_audit_identity_params():
         props = schema["parameters"]["properties"]
         assert "sender_name" in props
         assert "umo" in props
+
+
+def test_gh_issue_has_edit_action():
+    actions = TOOL_SCHEMAS["gh_issue"]["parameters"]["properties"]["action"]["enum"]
+    assert "edit" in actions

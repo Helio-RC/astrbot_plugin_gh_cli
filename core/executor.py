@@ -17,8 +17,8 @@ logger = logging.getLogger(__name__)
 # (group, action) pairs whose long-text "body" parameter gets the configured
 # text_prefix prepended. Short description fields are deliberately excluded.
 LONG_TEXT_ACTIONS = {
-    "issue": {"create", "comment"},
-    "pr": {"create", "comment", "review"},
+    "issue": {"create", "edit", "comment"},
+    "pr": {"create", "edit", "comment", "review"},
     "release": {"create"},
 }
 
@@ -46,14 +46,19 @@ class Executor:
     def _write_enabled(self, group: str) -> bool:
         return bool(self.config.get(f"{group}_write", False))
 
-    def check_permission(self, group: str, action: str, is_admin: bool) -> str | None:
+    def check_permission(
+        self, group: str, action: str, is_admin: bool, params: dict | None = None
+    ) -> str | None:
         try:
             mod = registry.get_group(group)
         except KeyError:
             return f"不支持的指令组: {group}。输入 /gh help 查看可用功能。"
         if not self._group_enabled(group):
             return f"指令组 {group} 未启用，请管理员在插件配置中打开开关。"
-        if action in mod.WRITE:
+        # 部分指令组（如 api）的 action 与实际写操作键不一致，由模块提供 write_key 映射
+        write_key = getattr(mod, "write_key", None)
+        candidate = write_key(action, params or {}) if write_key else action
+        if candidate in mod.WRITE:
             if not self._write_enabled(group):
                 return (
                     f"指令组 {group} 的写操作未启用，请管理员打开 {group}_write 开关。"
@@ -80,6 +85,7 @@ class Executor:
             # bot_write: LLM 工具调用时机器人自身视为管理员（仅影响写操作校验）
             is_admin
             or (source == "tool" and bool(self.config.get("bot_write", False))),
+            params,
         )
         if err:
             return {"ok": False, "error": err}

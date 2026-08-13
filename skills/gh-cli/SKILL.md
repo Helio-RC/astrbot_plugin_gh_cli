@@ -12,8 +12,8 @@ description: 通过 AstrBot 插件执行 GitHub CLI 风格操作（repo/issue/pr
 | 工具 | 用途 | 写操作（需管理员） |
 |---|---|---|
 | gh_repo | 仓库查看/列表/创建/编辑/加星/取消加星 | create, edit, star, unstar |
-| gh_issue | issue 列表/查看/创建/关闭/重开/评论 | create, edit, close, reopen, comment, delete |
-| gh_pr | PR 列表/查看/创建/合并/评论/评审 | create, edit, close, reopen, merge, comment, review, delete |
+| gh_issue | issue 列表/查看/创建/编辑/关闭/重开/评论 | create, edit, close, reopen, comment |
+| gh_pr | PR 列表/查看/创建/编辑/合并/评论/评审 | create, edit, close, reopen, merge, comment, review |
 | gh_release | release 列表/查看/创建/删除 | create, edit, delete |
 | gh_gist | gist 列表/查看/创建/删除 | create, edit, delete, comment |
 | gh_search | 搜索仓库/issue/PR/用户/代码 | 无 |
@@ -34,6 +34,7 @@ description: 通过 AstrBot 插件执行 GitHub CLI 风格操作（repo/issue/pr
 - 查仓库: `gh_repo(action="view", repo="octocat/Hello-World")`
 - 列 issue: `gh_issue(action="list", repo="o/r", state="open")`
 - 建 issue: `gh_issue(action="create", repo="o/r", title="标题", body="内容")`（写操作）
+- 给 issue 打标签: `gh_issue(action="edit", repo="o/r", number=42, labels="bug,help wanted")`（写操作）
 - 看 PR: `gh_pr(action="view", repo="o/r", number=42)`
 - 搜仓库: `gh_search(action="repos", query="astrbot")`
 - 看 Actions: `gh_run(action="runs", repo="o/r")`

@@ -43,8 +43,8 @@ pip install -r requirements.txt
 | `personal_tokens` | 个人 Token 列表（名称 + Token）。用户可在聊天中用 `/gh auth use <名称>` 切换身份。 |
 | `default_repo` | 默认仓库 `owner/repo`，未带 `-R` 参数时使用。 |
 | `enable_repo` / `repo_write` | 仓库组开关 / 是否允许仓库写操作（`create/edit/star/unstar`）。 |
-| `enable_issue` / `issue_write` | Issue 组开关 / 是否允许写操作（`create/edit/close/reopen/comment/delete`）。 |
-| `enable_pr` / `pr_write` | PR 组开关 / 是否允许写操作（`create/edit/close/reopen/merge/comment/review/delete`）。 |
+| `enable_issue` / `issue_write` | Issue 组开关 / 是否允许写操作（`create/edit/close/reopen/comment`）。 |
+| `enable_pr` / `pr_write` | PR 组开关 / 是否允许写操作（`create/edit/close/reopen/merge/comment/review`）。 |
 | `enable_release` / `release_write` | Release 组开关 / 是否允许写操作（`create/edit/delete`）。 |
 | `enable_gist` / `gist_write` | Gist 组开关 / 是否允许写操作（`create/edit/delete/comment`）。 |
 | `enable_search` / `search_write` | 搜索组开关（无写操作）。 |

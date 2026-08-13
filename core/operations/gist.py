@@ -1,4 +1,4 @@
-"""gist group: list / view / create / delete."""
+"""gist group: list / view / create / edit / comment / delete."""
 
 MODE = "sync"
 WRITE = {"create", "edit", "delete", "comment"}
@@ -8,6 +8,8 @@ HELP = (
     "/gh gist list\n"
     "/gh gist view <id>\n"
     "/gh gist create --files a.txt=内容 [--description 描述] [--public]\n"
+    "/gh gist edit <id> --files a.txt=内容 [--description 描述]\n"
+    "/gh gist comment <id> --body 内容\n"
     "/gh gist delete <id>"
 )
 
@@ -53,6 +55,30 @@ def delete(client, params):
     return {"id": params["id"], "ok": True}
 
 
+def edit(client, params):
+    g = client.get_github().get_gist(params["id"])
+    raw_files = params.get("files") or {}
+    files = {name: {"content": content} for name, content in raw_files.items()}
+    kwargs = {}
+    if files:
+        kwargs["files"] = files
+    if params.get("description") is not None:
+        kwargs["description"] = params["description"]
+    if not kwargs:
+        raise ValueError("缺少修改内容: /gh gist edit <id> [--files 文件名=内容] [--description 描述]")
+    g.edit(**kwargs)
+    return {"id": params["id"], "ok": True}
+
+
+def comment(client, params):
+    g = client.get_github().get_gist(params["id"])
+    body = params.get("body")
+    if not body:
+        raise ValueError("缺少评论内容: /gh gist comment <id> --body 内容")
+    c = g.create_comment(body)
+    return {"id": c.id, "ok": True}
+
+
 def format(data, list_limit: int, content_limit: int) -> str:
     if isinstance(data, list):
         lines = [
@@ -74,5 +100,7 @@ HANDLERS = {
     "list": list_gists,
     "view": view,
     "create": create,
+    "edit": edit,
+    "comment": comment,
     "delete": delete,
 }

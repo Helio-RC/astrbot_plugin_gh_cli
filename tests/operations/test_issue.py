@@ -1,5 +1,7 @@
 from types import SimpleNamespace
 
+import pytest
+
 from core.operations import issue
 
 
@@ -53,6 +55,51 @@ def test_view():
 def test_write_metadata():
     assert "close" in issue.WRITE
     assert "comment" in issue.WRITE
+    assert "edit" in issue.WRITE
+    assert "delete" not in issue.WRITE
+
+
+def test_edit_labels():
+    calls = {}
+
+    def fake_edit(**kwargs):
+        calls.update(kwargs)
+
+    repo = SimpleNamespace(
+        get_issue=lambda n: SimpleNamespace(
+            number=n, html_url="u", edit=fake_edit, state="open", title="t", labels=[]
+        )
+    )
+    data = issue.HANDLERS["edit"](
+        _client(repo), {"repo": "o/r", "number": 42, "labels": "bug, help wanted"}
+    )
+    assert data["ok"] is True
+    assert calls["labels"] == ["bug", "help wanted"]
+
+
+def test_edit_multiple_fields():
+    calls = {}
+
+    def fake_edit(**kwargs):
+        calls.update(kwargs)
+
+    repo = SimpleNamespace(
+        get_issue=lambda n: SimpleNamespace(number=n, html_url="u", edit=fake_edit)
+    )
+    issue.HANDLERS["edit"](
+        _client(repo),
+        {"repo": "o/r", "number": 1, "title": "新标题", "body": "新正文"},
+    )
+    assert calls["title"] == "新标题"
+    assert calls["body"] == "新正文"
+
+
+def test_edit_requires_change():
+    repo = SimpleNamespace(
+        get_issue=lambda n: SimpleNamespace(number=n, html_url="u", edit=lambda **k: None)
+    )
+    with pytest.raises(ValueError):
+        issue.HANDLERS["edit"](_client(repo), {"repo": "o/r", "number": 1})
 
 
 def test_format():

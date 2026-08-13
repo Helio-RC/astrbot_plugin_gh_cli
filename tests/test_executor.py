@@ -114,6 +114,39 @@ def test_read_allowed_without_admin(tmp_path):
     assert e.check_permission("repo", "view", is_admin=False) is None
 
 
+def test_api_get_allowed_without_admin(tmp_path):
+    e = _exec(tmp_path)
+    err = e.check_permission(
+        "api", "call", is_admin=False, params={"method": "GET"}
+    )
+    assert err is None
+
+
+def test_api_write_requires_write_toggle(tmp_path):
+    e = _exec(tmp_path)
+    err = e.check_permission("api", "call", is_admin=True, params={"method": "POST"})
+    assert err is not None and "写操作" in err
+
+
+def test_api_write_requires_admin(tmp_path):
+    e = _exec(tmp_path, {"api_write": True})
+    err = e.check_permission("api", "call", is_admin=False, params={"method": "DELETE"})
+    assert err is not None and "管理员" in err
+
+
+def test_api_write_allowed_for_admin(tmp_path):
+    e = _exec(tmp_path, {"api_write": True})
+    assert (
+        e.check_permission("api", "call", is_admin=True, params={"method": "PATCH"})
+        is None
+    )
+
+
+def test_api_defaults_to_get(tmp_path):
+    e = _exec(tmp_path)
+    assert e.check_permission("api", "call", is_admin=False) is None
+
+
 def test_unknown_group(tmp_path):
     e = _exec(tmp_path)
     assert e.check_permission("nope", "x", is_admin=False) is not None

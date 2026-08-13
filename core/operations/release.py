@@ -1,4 +1,4 @@
-"""release group: list / view / create / delete."""
+"""release group: list / view / create / edit / delete."""
 
 MODE = "sync"
 WRITE = {"create", "edit", "delete"}
@@ -8,6 +8,7 @@ HELP = (
     "/gh release list [-R owner/repo]\n"
     "/gh release view <tag> [-R owner/repo]\n"
     "/gh release create <tag> [--name 名称] [--body 内容] [--draft] [--prerelease] [-R owner/repo]\n"
+    "/gh release edit <tag> [--name 名称] [--body 内容] [--draft] [--prerelease] [-R owner/repo]\n"
     "/gh release delete <tag> [-R owner/repo]"
 )
 
@@ -62,6 +63,24 @@ def delete(client, params):
     return {"tag": params["tag"], "ok": True}
 
 
+def edit(client, params):
+    repo = _repo(client, params)
+    r = repo.get_release(params["tag"])
+    kwargs = {}
+    if params.get("name") is not None:
+        kwargs["name"] = params["name"]
+    if params.get("body") is not None:
+        kwargs["message"] = params["body"]
+    if params.get("draft") is not None:
+        kwargs["draft"] = bool(params["draft"])
+    if params.get("prerelease") is not None:
+        kwargs["prerelease"] = bool(params["prerelease"])
+    if not kwargs:
+        raise ValueError("缺少修改内容: /gh release edit <tag> [--name 名称] [--body 内容]")
+    r.update_release(**kwargs)
+    return {"tag": params["tag"], "ok": True}
+
+
 def format(data, list_limit: int, content_limit: int) -> str:
     if isinstance(data, list):
         lines = []
@@ -84,5 +103,6 @@ HANDLERS = {
     "list": list_releases,
     "view": view,
     "create": create,
+    "edit": edit,
     "delete": delete,
 }

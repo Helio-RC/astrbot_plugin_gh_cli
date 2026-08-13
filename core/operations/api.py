@@ -23,6 +23,11 @@ def _parse_body(raw):
         raise ValueError("--body 必须是合法 JSON。") from None
 
 
+def write_key(action: str, params: dict) -> str:
+    """权限校验用键：api 组的 action 恒为 call，实际写操作由 HTTP method 决定。"""
+    return (params.get("method") or "GET").upper()
+
+
 async def call(client, params):
     path = params.get("path", "").strip()
     if not path:

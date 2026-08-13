@@ -53,6 +53,30 @@ def test_view():
 
 def test_write_metadata():
     assert "delete" in gist.WRITE
+    assert "edit" in gist.WRITE
+    assert "comment" in gist.WRITE
+
+
+def test_edit():
+    g = _gist("abc", "desc", {"a.txt": "hi"})
+    calls = {}
+    g.edit = lambda **kw: calls.update(kw)
+    data = gist.HANDLERS["edit"](
+        _client(g),
+        {"id": "abc", "description": "新描述", "files": {"a.txt": "hello", "b.txt": "x"}},
+    )
+    assert data["ok"] is True
+    assert calls["description"] == "新描述"
+    assert calls["files"] == {"a.txt": {"content": "hello"}, "b.txt": {"content": "x"}}
+
+
+def test_comment():
+    g = _gist("abc", "desc")
+    calls = {}
+    g.create_comment = lambda body: calls.update(body=body) or SimpleNamespace(id=7)
+    data = gist.HANDLERS["comment"](_client(g), {"id": "abc", "body": "很好"})
+    assert data["ok"] is True
+    assert calls["body"] == "很好"
 
 
 def test_format():
