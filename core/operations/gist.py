@@ -1,5 +1,7 @@
 """gist group: list / view / create / edit / comment / delete."""
 
+from github import InputFileContent
+
 MODE = "sync"
 WRITE = {"create", "edit", "delete", "comment"}
 
@@ -32,17 +34,20 @@ def view(client, params):
     return _item(g)
 
 
+def _files(raw) -> dict:
+    return {name: InputFileContent(content) for name, content in raw.items()}
+
+
 def create(client, params):
     raw_files = params.get("files", {})
     if not raw_files:
         raise ValueError("缺少文件内容: /gh gist create --files 文件名=内容")
-    files = {name: {"content": content} for name, content in raw_files.items()}
     g = (
         client.get_github()
         .get_user()
         .create_gist(
             public=bool(params.get("public", False)),
-            files=files,
+            files=_files(raw_files),
             description=params.get("description") or "",
         )
     )
@@ -58,10 +63,9 @@ def delete(client, params):
 def edit(client, params):
     g = client.get_github().get_gist(params["id"])
     raw_files = params.get("files") or {}
-    files = {name: {"content": content} for name, content in raw_files.items()}
     kwargs = {}
-    if files:
-        kwargs["files"] = files
+    if raw_files:
+        kwargs["files"] = _files(raw_files)
     if params.get("description") is not None:
         kwargs["description"] = params["description"]
     if not kwargs:

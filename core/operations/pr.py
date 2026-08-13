@@ -78,15 +78,17 @@ def edit(client, params):
         kwargs["title"] = params["title"]
     if params.get("body") is not None:
         kwargs["body"] = params["body"]
-    if params.get("labels") is not None:
-        kwargs["labels"] = [
-            l.strip() for l in params["labels"].split(",") if l.strip()
-        ]
     if params.get("state"):
         kwargs["state"] = params["state"]
     if params.get("base"):
         kwargs["base"] = params["base"]
-    if not kwargs:
+    changed = bool(kwargs)
+    if params.get("labels") is not None:
+        labels = [l.strip() for l in params["labels"].split(",") if l.strip()]
+        # PR 无 labels 参数，标签经 issues 端点设置（与 gh CLI 一致）
+        repo.get_issue(int(params["number"])).edit(labels=labels)
+        changed = True
+    if not changed:
         raise ValueError("缺少修改内容: /gh pr edit <n> [--title 标题] [--body 内容] [--labels a,b]")
     p.edit(**kwargs)
     return {"number": p.number, "ok": True}

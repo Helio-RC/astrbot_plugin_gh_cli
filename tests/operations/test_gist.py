@@ -42,7 +42,7 @@ def test_create():
         c, {"description": "demo", "files": {"a.txt": "hello"}, "public": False}
     )
     assert data["ok"] is True
-    assert created["files"] == {"a.txt": {"content": "hello"}}
+    assert created["files"]["a.txt"]._identity == {"content": "hello"}
 
 
 def test_view():
@@ -67,7 +67,8 @@ def test_edit():
     )
     assert data["ok"] is True
     assert calls["description"] == "新描述"
-    assert calls["files"] == {"a.txt": {"content": "hello"}, "b.txt": {"content": "x"}}
+    assert calls["files"]["a.txt"]._identity == {"content": "hello"}
+    assert calls["files"]["b.txt"]._identity == {"content": "x"}
 
 
 def test_comment():

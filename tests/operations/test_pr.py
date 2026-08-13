@@ -62,11 +62,28 @@ def test_edit():
     repo = SimpleNamespace(get_pull=lambda n: p)
     data = pr.HANDLERS["edit"](
         _client(repo),
-        {"repo": "o/r", "number": 1, "title": "新标题", "labels": "bug, feat"},
+        {"repo": "o/r", "number": 1, "title": "新标题"},
     )
     assert data["ok"] is True
     assert calls["title"] == "新标题"
-    assert calls["labels"] == ["bug", "feat"]
+
+
+def test_edit_labels_via_issue_endpoint():
+    p = _pr(1, "a", "open")
+    p.edit = lambda **kw: None
+    label_calls = {}
+
+    class FakeIssue:
+        def edit(self, labels=None):
+            label_calls["labels"] = labels
+
+    repo = SimpleNamespace(get_pull=lambda n: p, get_issue=lambda n: FakeIssue())
+    data = pr.HANDLERS["edit"](
+        _client(repo),
+        {"repo": "o/r", "number": 1, "labels": "bug, feat"},
+    )
+    assert data["ok"] is True
+    assert label_calls["labels"] == ["bug", "feat"]
 
 
 def test_format_list():

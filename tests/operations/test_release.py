@@ -59,6 +59,18 @@ def test_edit():
     assert calls == {"name": "v2", "message": "新说明", "prerelease": True}
 
 
+def test_edit_partial_falls_back_to_current():
+    r = _rel("v1", "旧名称", body="旧说明")
+    calls = {}
+    r.update_release = lambda **kw: calls.update(kw)
+    repo = SimpleNamespace(get_release=lambda tag: r)
+    data = release.HANDLERS["edit"](
+        _client(repo), {"repo": "o/r", "tag": "v1", "body": "只改说明"}
+    )
+    assert data["ok"] is True
+    assert calls == {"name": "旧名称", "message": "只改说明"}
+
+
 def test_format():
     out = release.format(
         [{"tag": "v1", "name": "v1", "draft": False, "prerelease": False}], 10, 1500

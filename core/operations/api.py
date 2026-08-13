@@ -23,9 +23,13 @@ def _parse_body(raw):
         raise ValueError("--body 必须是合法 JSON。") from None
 
 
+def _method(params: dict) -> str:
+    return (params.get("method") or "GET").upper()
+
+
 def write_key(action: str, params: dict) -> str:
     """权限校验用键：api 组的 action 恒为 call，实际写操作由 HTTP method 决定。"""
-    return (params.get("method") or "GET").upper()
+    return _method(params)
 
 
 async def call(client, params):
@@ -38,7 +42,7 @@ async def call(client, params):
             raise ValueError("仅允许调用 GitHub API（api.github.com）。")
     elif not path.startswith("/"):
         path = "/" + path
-    method = (params.get("method") or "GET").upper()
+    method = _method(params)
     body = _parse_body(params.get("body"))
     status, data = await client.rest(
         method, path, params=params.get("query"), body=body

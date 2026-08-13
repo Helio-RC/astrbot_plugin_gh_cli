@@ -66,16 +66,16 @@ def delete(client, params):
 def edit(client, params):
     repo = _repo(client, params)
     r = repo.get_release(params["tag"])
-    kwargs = {}
-    if params.get("name") is not None:
-        kwargs["name"] = params["name"]
-    if params.get("body") is not None:
-        kwargs["message"] = params["body"]
+    # update_release 的 name/message 为必填，缺省沿用当前值以支持单字段修改
+    kwargs = {
+        "name": params.get("name") if params.get("name") is not None else (r.name or r.tag_name),
+        "message": params.get("body") if params.get("body") is not None else (r.body or ""),
+    }
     if params.get("draft") is not None:
         kwargs["draft"] = bool(params["draft"])
     if params.get("prerelease") is not None:
         kwargs["prerelease"] = bool(params["prerelease"])
-    if not kwargs:
+    if params.get("name") is None and params.get("body") is None and params.get("draft") is None and params.get("prerelease") is None:
         raise ValueError("缺少修改内容: /gh release edit <tag> [--name 名称] [--body 内容]")
     r.update_release(**kwargs)
     return {"tag": params["tag"], "ok": True}

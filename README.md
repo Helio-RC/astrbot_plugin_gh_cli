@@ -1,8 +1,8 @@
 # astrbot_plugin_gh_cli
 
-GitHub CLI 插件：在 [AstrBot](https://github.com/AstrBotDevs/AstrBot) 聊天中直接使用 GitHub CLI 风格的指令与 AI 函数调用，管理仓库、Issue、PR、Release、Gist、Actions，执行搜索与原始 REST API 请求。
+GitHub CLI 插件：在 [AstrBot](https://github.com/AstrBotDevs/AstrBot) 聊天中通过`PyGithub`直接使用 GitHub CLI 风格的指令与 AI 函数调用，管理仓库、Issue、PR、Release、Gist、Actions，执行搜索与原始 REST API 请求。
 
-插件名称：`astrbot_plugin_gh_cli`，版本：v1.0.0
+插件名称：`astrbot_plugin_gh_cli`，版本：v1.0.1
 
 ## 功能特性
 
